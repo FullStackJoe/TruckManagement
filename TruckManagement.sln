@@ -2,6 +2,8 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TruckManagement", "TruckManagement\TruckManagement.csproj", "{AE567F55-8ED8-4483-A027-B497AC269647}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BackEnd", "BackEnd\BackEnd.csproj", "{A34667FA-AD62-4DF6-837C-AC99D8FCF745}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -12,5 +14,9 @@ Global
 		{AE567F55-8ED8-4483-A027-B497AC269647}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AE567F55-8ED8-4483-A027-B497AC269647}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AE567F55-8ED8-4483-A027-B497AC269647}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A34667FA-AD62-4DF6-837C-AC99D8FCF745}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A34667FA-AD62-4DF6-837C-AC99D8FCF745}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A34667FA-AD62-4DF6-837C-AC99D8FCF745}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A34667FA-AD62-4DF6-837C-AC99D8FCF745}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
