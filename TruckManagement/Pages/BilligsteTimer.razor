@@ -1,6 +1,164 @@
-@page "/Billigste_timer"
-<h3>Billigste_timer</h3>
+@page "/Billigstetimer"
+@inject EnergyPrices energyPrice
+@inject HttpClient Http
+
+<div class="container">
+    <h2>Opladningsdetaljer</h2>
+
+    <div class="form-group">
+        <label for="chargingHours">Hvor mange timer skal der lades?</label>
+        <select id="chargingHours" @bind="chargingHours">
+            @for (int i = 1; i <= 12; i++)
+            {
+                <option value="@i">@i</option>
+            }
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label>Hvornår skal opladningen være færdig?</label>
+        <div class="flex-row">
+            <div>
+                <label for="selectedDate">Dato</label>
+                <input type="date" id="selectedDate" @bind="selectedDate" @bind:event="oninput" />
+            </div>
+
+            <div>
+                <label for="selectedHour">Time</label>
+                <select id="selectedHour" @bind="selectedHour">
+                    @for (int hour = 0; hour < 24; hour++)
+                    {
+                        <option value="@hour">@hour.ToString("00")</option>
+                    }
+                </select>
+            </div>
+
+            <div>
+                <label for="selectedMinute">Minut</label>
+                <select id="selectedMinute" @bind="selectedMinute">
+                    @for (int minute = 0; minute < 60; minute += 5)
+                    {
+                        <option value="@minute">@minute.ToString("00")</option>
+                    }
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <button onclick="@UpdateCheapestHours">Opdater</button>
+</div>
+<br /><br />
+@if (myData != null && myData.Any())
+{
+    <div class="table-container">
+    <table>
+        <thead>
+        <tr>
+            <th style="padding-right: 220px;">Time Start</th>
+            <th style="padding-right: 220px;">Time End</th>
+            <th>DKK per kWh</th>
+        </tr>
+        </thead>
+        <tbody>
+        @foreach (var data in cheapestHours)
+        {
+            <tr>
+                <td>@data.TimeStart.ToString("dd/MM/yyyy HH:mm:ss")</td>
+                <td>@data.TimeEnd.ToString("dd/MM/yyyy HH:mm:ss")</td>
+                <td>@data.DKK_per_kWh</td>
+            </tr>
+        }
+        </tbody>
+    </table>
+    </div>
+}
 
 @code {
+    // Selection variables
+    private DateTimeOffset selectedDate;
+    private bool isCharging = false;
+    private int selectedHour;
+    private int selectedMinute;
+    private int chargingHours = 1;
+    
+    private DateTimeOffset deadline { get; set; }
+    private List<EnergyData> myData = new List<EnergyData>();
+    private List<EnergyData> cheapestHours = new List<EnergyData>();
+    
+    protected override async Task OnInitializedAsync()
+    {
+        selectedDate = DateTimeOffset.Now.AddDays(1);
+        myData = await energyPrice.getPriceDataAsync();
+        myData = myData.OrderBy(x => x.DKK_per_kWh).ToList();
+
+        _ = Task.Run(async () =>
+        {
+            while (true)
+            {
+                await Task.Delay(1000 * 60); // Delay 1 minute
+                var currentTime = DateTimeOffset.Now;
+                
+                if (currentTime.Minute == 1) // Check every minute
+                {
+                    foreach (var data in cheapestHours)
+                    {
+                        if (currentTime.Hour == data.TimeStart.Hour) // Check if current hour is in our list as startTime
+                        {
+                            if (!isCharging)
+                            {
+                                await TurnOnCharger(); // Await the asynchronous method
+                                Console.WriteLine("Charger turned on");
+                            }
+                            break;
+                        } else if (currentTime.Hour != data.TimeStart.Hour && isCharging)
+                        {
+                                await TurnOffCharger();
+                                Console.WriteLine("Charger turned off");
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    private void UpdateCheapestHours()
+    {
+        deadline = new DateTimeOffset(selectedDate.Year, selectedDate.Month, selectedDate.Day, selectedHour, selectedMinute, 0, selectedDate.Offset);
+        cheapestHours = myData
+            .Where(x => x.TimeEnd <= deadline)
+            .Where(x => x.TimeEnd > DateTimeOffset.Now)
+            .Take(chargingHours)
+            .OrderBy(x => x.TimeEnd)
+            .ToList();
+        
+    }
+
+    private async Task TurnOnCharger()
+    {
+        isCharging = true;
+        try
+        {
+            var response = await Http.PostAsync("https://hooks.nabu.casa/gAAAAABlZGbPN3FYr7t3-SEEkEJBfBL-FehdjcOT74tGfRaJp7cWNTPmNg_0YXWfMHSoWX8-CdCafslWUIe9RgYnHoaN4MiHLse3yStC1oqO2HERo2kGcAzwrlXwyevoFP0zbHQsRAqYpi_TDClJ4uKT9Ffum7Rnu46HTH-Ob_09pNlyPELYgFo=", new StringContent(""));
+            response.EnsureSuccessStatusCode();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+        }
+    }
+    
+    private async Task TurnOffCharger()
+    {
+        isCharging = false;
+        try
+        {
+            var response = await Http.PostAsync("https://hooks.nabu.casa/gAAAAABlZHKmhSx7jVn8MNfZ25YYHwdaIeDjICmUh7uq6zMT7HZlnCd7oCku2FHzfvKfDCkVLWXCXYkCffy-qidz1gH2C4aOJeXtseYe5Q_GJ_C5wT0CXyoDvUBjIXI1ZALJK4UJLm3fLsw_b3vLud70uBBeiMFwY_x32iK6zj0wfHbUOrLCob4=", new StringContent(""));
+            response.EnsureSuccessStatusCode();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+        }
+    }
     
 }

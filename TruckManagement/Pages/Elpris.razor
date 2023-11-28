@@ -1,6 +1,63 @@
 @page "/Elpris"
+@inject EnergyPrices energyPrice
 <h3>Elpris</h3>
 
+@if (myData != null && myData.Any())
+{
+    <select @onchange="OnSortChanged">
+        <option value="price">Price</option>
+        <option value="time">Time</option>
+    </select>
+    <table>
+        <thead>
+        <tr>
+            <th style="padding-right: 220px;">Time Start</th>
+            <th style="padding-right: 220px;">Time End</th>
+            <th>DKK per kWh</th>
+        </tr>
+        </thead>
+        <tbody>
+        @foreach (var data in myData)
+        {
+            <tr>
+                <td>@data.TimeStart.ToString("dd/MM/yyyy HH:mm:ss")</td>
+                <td>@data.TimeEnd.ToString("dd/MM/yyyy HH:mm:ss")</td>
+                <td>@data.DKK_per_kWh</td>
+            </tr>
+        }
+        </tbody>
+    </table>
+    }
+else
+{
+    <p>Loading data...</p>
+}
+
 @code {
+    private string selectedSort = "price";
+    private List<EnergyData> myData;
+
+    protected override async Task OnInitializedAsync()
+    {
+        myData = await energyPrice.getPriceDataAsync();
+        SortData(); // Make sure SortData is implemented here
+    }
     
+    private async Task OnSortChanged(ChangeEventArgs e)
+    {
+        selectedSort = e.Value.ToString();
+        SortData();
+    }
+    private void SortData()
+    {
+        if (selectedSort == "price")
+        {
+            myData = myData.OrderBy(x => x.DKK_per_kWh).ToList();
+        }
+        else if (selectedSort == "time")
+        {
+            myData = myData.OrderBy(x => x.TimeStart).ToList();
+        }
+        StateHasChanged();
+    }
 }
