@@ -1,0 +1,24 @@
+﻿@page "/"
+@using WebApplication1.Shared
+@inject ShellyToggle shellyToggle
+
+<PageTitle>Index</PageTitle>
+
+<h1>Welcome to the system administration page</h1>
+<br />
+
+<button @onclick="Start">START</button>
+<br />
+<button>STOP</button>
+
+@code {
+    private void Start()
+    {
+        shellyToggle.StartSystem();
+    }
+
+    private void Stop()
+    {
+        shellyToggle.StopSystem();
+    }
+}

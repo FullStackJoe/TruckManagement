@@ -8,5 +8,5 @@ public class ChargingDBSchedule
 
     [Required] public int ChargerId { get; set; }
 
-    public DateTime startHour { get; set; }
+    public DateTime TimeStart { get; set; }
 }

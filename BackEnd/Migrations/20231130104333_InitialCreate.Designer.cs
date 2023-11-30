@@ -8,10 +8,10 @@ using WebApplication1.Shared;
 
 #nullable disable
 
-namespace WebApplication1.Migrations
+namespace BackEnd.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    [Migration("20231129105740_InitialCreate")]
+    [Migration("20231130104333_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -43,7 +43,7 @@ namespace WebApplication1.Migrations
                     b.Property<int>("ChargerId")
                         .HasColumnType("INTEGER");
 
-                    b.Property<DateTime>("startHour")
+                    b.Property<DateTime>("TimeStart")
                         .HasColumnType("TEXT");
 
                     b.HasKey("ChargingDBScheduleId");

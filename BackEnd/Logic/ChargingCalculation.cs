@@ -5,6 +5,7 @@ using WebApplication1.Shared;
 public class ChargingCalculation
 {
     private readonly DatabaseContext _context;
+    
 
     public ChargingCalculation(DatabaseContext context)
     {
@@ -44,5 +45,23 @@ public class ChargingCalculation
         int result = charger.ChargerAmpere;
         return result;
     }
+    
+    /*private void UpdateCheapestHours()
+    {
+        DateTime selectedDate = new DateTime(2023, 11, 30, 2, 0, 0);
+        // Create a TimeSpan for the offset (+01:00)
+        TimeSpan offset = new TimeSpan(1, 0, 0);
+        // Create a DateTimeOffset with the specified date, time, and offset
+        DateTimeOffset deadline = new DateTimeOffset(selectedDate, offset);
+        
+
+        cheapestHours = myData
+            .Where(x => x.TimeEnd <= deadline)
+            .Where(x => x.TimeEnd > DateTimeOffset.Now)
+            .Take(chargingHours)
+            .OrderBy(x => x.TimeEnd)
+            .ToList();
+        
+    } */
     
 }

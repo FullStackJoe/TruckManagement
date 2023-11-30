@@ -1,5 +1,7 @@
 using WebApplication1.Shared;
 using WebApplication1.Shared.EnergyPrices;
+using Microsoft.AspNetCore.Components.Web;
+using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,6 +14,10 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<ChargingCalculation>();
 builder.Services.AddScoped<EnergyPrices>();
 builder.Services.AddDbContext<DatabaseContext>();
+builder.Services.AddHttpClient<EnergyPrices>();
+builder.Services.AddHttpClient(); // This line registers IHttpClientFactory
+builder.Services.AddScoped<ShellyToggle>();
+builder.Services.AddScoped<DAO>();
 
 var app = builder.Build();
 

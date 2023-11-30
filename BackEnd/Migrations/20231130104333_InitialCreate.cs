@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace WebApplication1.Migrations
+namespace BackEnd.Migrations
 {
     /// <inheritdoc />
     public partial class InitialCreate : Migration
@@ -31,7 +31,7 @@ namespace WebApplication1.Migrations
                     ChargingDBScheduleId = table.Column<int>(type: "INTEGER", nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
                     ChargerId = table.Column<int>(type: "INTEGER", nullable: false),
-                    startHour = table.Column<DateTime>(type: "TEXT", nullable: false)
+                    TimeStart = table.Column<DateTime>(type: "TEXT", nullable: false)
                 },
                 constraints: table =>
                 {

@@ -7,7 +7,7 @@ using WebApplication1.Shared;
 
 #nullable disable
 
-namespace WebApplication1.Migrations
+namespace BackEnd.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
     partial class DatabaseContextModelSnapshot : ModelSnapshot
@@ -40,7 +40,7 @@ namespace WebApplication1.Migrations
                     b.Property<int>("ChargerId")
                         .HasColumnType("INTEGER");
 
-                    b.Property<DateTime>("startHour")
+                    b.Property<DateTime>("TimeStart")
                         .HasColumnType("TEXT");
 
                     b.HasKey("ChargingDBScheduleId");
