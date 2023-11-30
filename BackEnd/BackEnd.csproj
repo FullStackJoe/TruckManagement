@@ -4,7 +4,6 @@
         <TargetFramework>net7.0</TargetFramework>
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
-        <RootNamespace>WebApplication1</RootNamespace>
     </PropertyGroup>
 
     <ItemGroup>
@@ -16,6 +15,17 @@
         <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="7.0.14" />
         <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0"/>
     </ItemGroup>
+
+
+
+    <ItemGroup>
+      <ProjectReference Include="..\Domain\Domain.csproj" />
+    </ItemGroup>
+
+
+
+
+
 
 
 </Project>
