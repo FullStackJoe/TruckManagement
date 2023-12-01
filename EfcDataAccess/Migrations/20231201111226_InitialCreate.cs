@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace BackEnd.Migrations
+namespace EfcDataAccess.Migrations
 {
     /// <inheritdoc />
     public partial class InitialCreate : Migration
@@ -57,14 +57,14 @@ namespace BackEnd.Migrations
                 name: "Truck",
                 columns: table => new
                 {
-                    TruckId = table.Column<int>(type: "INTEGER", nullable: false)
+                    TruckTypeId = table.Column<int>(type: "INTEGER", nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
-                    TruckType = table.Column<string>(type: "TEXT", nullable: false),
+                    Model = table.Column<string>(type: "TEXT", nullable: false),
                     BatterySizeAh = table.Column<int>(type: "INTEGER", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Truck", x => x.TruckId);
+                    table.PrimaryKey("PK_Truck", x => x.TruckTypeId);
                 });
         }
 

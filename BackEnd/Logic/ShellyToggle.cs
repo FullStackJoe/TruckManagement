@@ -19,39 +19,43 @@ public class ShellyToggle
     public async void StartSystem()
     {
         Console.WriteLine("WORKS");
-        List<ChargingDBSchedule> cheapestHours = await dao.GetChargingDbSchedule();
 
         cancellationTokenSource = new CancellationTokenSource();
-        _ = Task.Run(async () => await RunScheduledTasks(cancellationTokenSource.Token, cheapestHours));
+        _ = Task.Run(async () => await RunScheduledTasks(cancellationTokenSource.Token));
     }
     
-    private async Task RunScheduledTasks(CancellationToken cancellationToken, List<ChargingDBSchedule> cheapestHours)
+    private async Task RunScheduledTasks(CancellationToken cancellationToken)
     {
         while (!cancellationToken.IsCancellationRequested)
         {
-            // await Task.Delay(1000 * 60, cancellationToken); // Delay 1 minute
-            await Task.Delay(900 , cancellationToken); // Delay 1 second
+            // await Task.Delay(1000 * 60 , cancellationToken); // Delay 1 minute
+            await Task.Delay(600, cancellationToken); // Delay 0,8 second
+            
             var currentTime = DateTimeOffset.Now;
-            int faketime = currentTime.Minute + 6;
+            int faketime = currentTime.Minute - 10;
             // if (currentTime.Minute == 1)
-            if (1 == 1)
+            if (currentTime.Second == 1)
             {
+                List<ChargingDBSchedule> cheapestHours = await dao.GetChargingDbSchedule();
+                
+                Console.WriteLine("Next Task: " + cheapestHours[0].TimeStart.Hour);
+                Console.WriteLine("Faketime: " + faketime);
                 if (faketime == cheapestHours[0].TimeStart.Hour && !isCharging)
                 {
-                    await TurnOnCharger(); 
-                    cheapestHours.RemoveAt(0);
+                    await TurnOnCharger();
+                    dao.DeleteFirstChargingDbScheduleLine();
                     Console.WriteLine("Charger turned on");
                 } else if (faketime == cheapestHours[0].TimeStart.Hour && isCharging)
                 {
+                    dao.DeleteFirstChargingDbScheduleLine();
+                }
+                else if (faketime != cheapestHours[0].TimeStart.Hour && isCharging)
+                {
                     await TurnOffCharger();
                     Console.WriteLine("Charger turned off");
-                } else if (faketime + 1 > cheapestHours[0].TimeStart.Hour && isCharging)
-                {
-                    Console.WriteLine("I do nothing");
                 }
-                Console.WriteLine(faketime);
                 Console.WriteLine(isCharging);
-                
+                await Task.Delay(3000, cancellationToken);
             }
         }
     }
@@ -59,6 +63,7 @@ public class ShellyToggle
     public void StopSystem()
     {
         cancellationTokenSource?.Cancel();
+        TurnOnCharger();
     }
     private async Task TurnOnCharger()
     {

@@ -2,13 +2,13 @@ using System.ComponentModel.DataAnnotations;
 
 namespace WebApplication1.Shared;
 
-public class Truck
+public class TruckTypes
 {
     [Key]
-    public int TruckId { get; set; }
+    public int TruckTypeId { get; set; }
     
     [Required]
-    public string TruckType { get; set; }
+    public string Model { get; set; }
     
     [Required]
     public int BatterySizeAh { get; set; }

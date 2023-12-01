@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using WebApplication1.Shared;
 using WebApplication1.Shared.EnergyPrices;
 
@@ -72,21 +73,5 @@ public class ChargingTaskController : ControllerBase
             return StatusCode(500, e.Message);
         }
     }
-    /*
-    [HttpPost]
-    public async Task<ActionResult<Post>> CreateAsync([FromBody]PostCreationDto dto)
-    {
-        try
-        {
-            Post created = await postLogic.CreateAsync(dto);
-            return Created($"/posts/{created.Id}", created);
-        }
-        catch (Exception e)
-        {
-            Console.WriteLine(e);
-            return StatusCode(500, e.Message);
-        }
-    }
-    */
     
 }

@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace WebApplication1.Shared;
 
-public class Charger
+public class WallCharger
 {
     [Key]
     public int ChargerId { get; set; }

@@ -1,0 +1,81 @@
+﻿@page "/Admin"
+@using WebApplication1.Shared
+@using HttpClients.ClientInterface
+@inject ShellyToggle shellyToggle
+@inject IChargerService chargerService
+
+
+<PageTitle>System Administration</PageTitle>
+
+<main class="admin-container">
+    <h1 class="page-header">Welcome to the System Administration Page</h1>
+
+    <section class="control-panel">
+        <button class="btn" @onclick="Start">START</button>
+        <button class="btn" @onclick="Stop">STOP</button>
+    </section>
+
+    <section class="charger-form">
+        <h2>Tilføj Oplader</h2>
+        <p>Skriv opladerens Ampere</p>
+        <input class="input-field" type="number" @bind="ampere" min="1" placeholder="Ampere">
+        <button class="btn" @onclick="AddCharger">Tilføj</button>
+        @if (showLabel)
+        {
+            <label class="success-message">Oplader med ID: @id oprettet</label>
+        }
+    </section>
+
+    <section class="truck-type-form">
+        <h2>Tilføj TruckType</h2>
+        <!-- Additional content goes here -->
+    </section>
+</main>
+
+@code {
+
+    int ampere;
+    int id;
+    bool showLabel = false;
+    
+    private async Task AddCharger()
+    {
+        if (ampere == null || ampere == 0)
+        {
+        // Handle the case where ampere is null.
+            return;
+        }
+        WallCharger newCharger = new WallCharger
+        {
+            ChargerId = 0,
+            ChargerAmpere = ampere,
+        };
+
+        try
+        {
+            WallCharger chargerAdded = await chargerService.CreateAsync(newCharger);
+            id = chargerAdded.ChargerId;
+            Console.WriteLine(chargerAdded.ChargerId);
+            showLabel = true; 
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+        }
+        
+    }
+
+    
+    
+    private void Start()
+    {
+        shellyToggle.StartSystem();
+    }
+
+    private void Stop()
+    {
+        shellyToggle.StopSystem();
+    }
+    
+    
+}

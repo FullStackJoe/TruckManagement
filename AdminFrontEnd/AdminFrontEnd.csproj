@@ -8,6 +8,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\BackEnd\BackEnd.csproj" />
+      <ProjectReference Include="..\HttpClients\HttpClients.csproj" />
     </ItemGroup>
 
 </Project>

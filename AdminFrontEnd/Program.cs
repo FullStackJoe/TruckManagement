@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using AdminFrontEnd.Data;
+using HttpClients.ClientInterface;
+using HttpClients.Implementations;
 using WebApplication1.Shared;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -9,9 +11,10 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
 builder.Services.AddSingleton<WeatherForecastService>();
-builder.Services.AddHttpClient(); // Registers IHttpClientFactory
+builder.Services.AddScoped(SP => new HttpClient()); // Registers IHttpClientFactory
 builder.Services.AddScoped<DAO>();
 builder.Services.AddScoped<ShellyToggle>();
+builder.Services.AddScoped<IChargerService, ChargerHttpClient>();
 builder.Services.AddDbContext<DatabaseContext>();
 var app = builder.Build();
 

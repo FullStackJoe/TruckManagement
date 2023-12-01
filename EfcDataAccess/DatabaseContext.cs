@@ -7,12 +7,12 @@ public class DatabaseContext : DbContext
 {
     public DbSet<Measurement> Measurements { get; set; }
     public DbSet<ChargingDBSchedule> ChargingDBSchedule { get; set; }
-    public DbSet<Charger> Charger { get; set; }
-    public DbSet<Truck> Truck { get; set; }
+    public DbSet<WallCharger> Charger { get; set; }
+    public DbSet<TruckTypes> Truck { get; set; }
     
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
-        optionsBuilder.UseSqlite("Data Source = ../BackEnd/Database.db");
+        optionsBuilder.UseSqlite("Data Source = ../EfcDataAccess/Database.db");
         optionsBuilder.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);  
         
 

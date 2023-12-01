@@ -8,10 +8,10 @@ using WebApplication1.Shared;
 
 #nullable disable
 
-namespace BackEnd.Migrations
+namespace EfcDataAccess.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    [Migration("20231130104333_InitialCreate")]
+    [Migration("20231201111226_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -71,20 +71,20 @@ namespace BackEnd.Migrations
                     b.ToTable("Measurements");
                 });
 
-            modelBuilder.Entity("WebApplication1.Shared.Truck", b =>
+            modelBuilder.Entity("WebApplication1.Shared.TruckTypes", b =>
                 {
-                    b.Property<int>("TruckId")
+                    b.Property<int>("TruckTypeId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
                     b.Property<int>("BatterySizeAh")
                         .HasColumnType("INTEGER");
 
-                    b.Property<string>("TruckType")
+                    b.Property<string>("Model")
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.HasKey("TruckId");
+                    b.HasKey("TruckTypeId");
 
                     b.ToTable("Truck");
                 });

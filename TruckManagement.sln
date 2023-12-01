@@ -8,6 +8,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Domain", "Domain\Domain.csp
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AdminFrontEnd", "AdminFrontEnd\AdminFrontEnd.csproj", "{062DC051-74ED-4D23-9671-6869A8A5C6E9}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EfcDataAccess", "EfcDataAccess\EfcDataAccess.csproj", "{7554681C-2F58-46FF-ABD1-1FC2E73F1E5B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HttpClients", "HttpClients\HttpClients.csproj", "{4373581E-1577-4FA1-A58C-673ECB5B0415}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -30,5 +34,13 @@ Global
 		{062DC051-74ED-4D23-9671-6869A8A5C6E9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{062DC051-74ED-4D23-9671-6869A8A5C6E9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{062DC051-74ED-4D23-9671-6869A8A5C6E9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7554681C-2F58-46FF-ABD1-1FC2E73F1E5B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7554681C-2F58-46FF-ABD1-1FC2E73F1E5B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7554681C-2F58-46FF-ABD1-1FC2E73F1E5B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7554681C-2F58-46FF-ABD1-1FC2E73F1E5B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4373581E-1577-4FA1-A58C-673ECB5B0415}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4373581E-1577-4FA1-A58C-673ECB5B0415}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4373581E-1577-4FA1-A58C-673ECB5B0415}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4373581E-1577-4FA1-A58C-673ECB5B0415}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

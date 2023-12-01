@@ -17,4 +17,15 @@ public class DAO
 
         return cheapestHours;
     }
+    public async void DeleteFirstChargingDbScheduleLine()
+    {
+        var firstLine = await context.ChargingDBSchedule.FirstOrDefaultAsync();
+
+        if (firstLine != null)
+        {
+            context.ChargingDBSchedule.Remove(firstLine);
+            await context.SaveChangesAsync();
+        }
+
+    }
 }
