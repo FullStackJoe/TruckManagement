@@ -7,8 +7,8 @@ public class DatabaseContext : DbContext
 {
     public DbSet<Measurement> Measurements { get; set; }
     public DbSet<ChargingDBSchedule> ChargingDBSchedule { get; set; }
-    public DbSet<WallCharger> Charger { get; set; }
-    public DbSet<TruckTypes> Truck { get; set; }
+    public DbSet<WallCharger> WallCharger { get; set; }
+    public DbSet<TruckTypes> TruckType { get; set; }
     
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {

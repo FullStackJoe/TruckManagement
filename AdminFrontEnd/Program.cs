@@ -15,6 +15,7 @@ builder.Services.AddScoped(SP => new HttpClient()); // Registers IHttpClientFact
 builder.Services.AddScoped<DAO>();
 builder.Services.AddScoped<ShellyToggle>();
 builder.Services.AddScoped<IChargerService, ChargerHttpClient>();
+builder.Services.AddScoped<IChargingTaskService, ChargingTaskHttpClient>();
 builder.Services.AddDbContext<DatabaseContext>();
 var app = builder.Build();
 

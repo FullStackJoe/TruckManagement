@@ -17,20 +17,6 @@ namespace EfcDataAccess.Migrations
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "7.0.14");
 
-            modelBuilder.Entity("WebApplication1.Shared.Charger", b =>
-                {
-                    b.Property<int>("ChargerId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int>("ChargerAmpere")
-                        .HasColumnType("INTEGER");
-
-                    b.HasKey("ChargerId");
-
-                    b.ToTable("Charger");
-                });
-
             modelBuilder.Entity("WebApplication1.Shared.ChargingDBSchedule", b =>
                 {
                     b.Property<int>("ChargingDBScheduleId")
@@ -83,7 +69,29 @@ namespace EfcDataAccess.Migrations
 
                     b.HasKey("TruckTypeId");
 
-                    b.ToTable("Truck");
+                    b.ToTable("TruckType");
+                });
+
+            modelBuilder.Entity("WebApplication1.Shared.WallCharger", b =>
+                {
+                    b.Property<int>("ChargerId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("ChargerAmpere")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("TurnOffUri")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("TurnOnUri")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("ChargerId");
+
+                    b.ToTable("WallCharger");
                 });
 #pragma warning restore 612, 618
         }

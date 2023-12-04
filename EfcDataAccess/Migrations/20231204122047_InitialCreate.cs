@@ -12,19 +12,6 @@ namespace EfcDataAccess.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "Charger",
-                columns: table => new
-                {
-                    ChargerId = table.Column<int>(type: "INTEGER", nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
-                    ChargerAmpere = table.Column<int>(type: "INTEGER", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Charger", x => x.ChargerId);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "ChargingDBSchedule",
                 columns: table => new
                 {
@@ -54,7 +41,7 @@ namespace EfcDataAccess.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Truck",
+                name: "TruckType",
                 columns: table => new
                 {
                     TruckTypeId = table.Column<int>(type: "INTEGER", nullable: false)
@@ -64,7 +51,22 @@ namespace EfcDataAccess.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Truck", x => x.TruckTypeId);
+                    table.PrimaryKey("PK_TruckType", x => x.TruckTypeId);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "WallCharger",
+                columns: table => new
+                {
+                    ChargerId = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    ChargerAmpere = table.Column<int>(type: "INTEGER", nullable: false),
+                    TurnOffUri = table.Column<string>(type: "TEXT", nullable: false),
+                    TurnOnUri = table.Column<string>(type: "TEXT", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_WallCharger", x => x.ChargerId);
                 });
         }
 
@@ -72,16 +74,16 @@ namespace EfcDataAccess.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "Charger");
-
-            migrationBuilder.DropTable(
                 name: "ChargingDBSchedule");
 
             migrationBuilder.DropTable(
                 name: "Measurements");
 
             migrationBuilder.DropTable(
-                name: "Truck");
+                name: "TruckType");
+
+            migrationBuilder.DropTable(
+                name: "WallCharger");
         }
     }
 }

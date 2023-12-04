@@ -21,7 +21,7 @@ public class ChargerController : ControllerBase
     {
         try
         {
-            EntityEntry<WallCharger> added = await _context.Charger.AddAsync(wallCharger);
+            EntityEntry<WallCharger> added = await _context.WallCharger.AddAsync(wallCharger);
             await _context.SaveChangesAsync();
             return added.Entity;
         }

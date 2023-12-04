@@ -6,8 +6,6 @@ public class ChargingTask
 
     public int ChargerId { get; set; }
 
-    public bool SmartCharging { get; set; }
-
     public int TruckType { get; set; }
     
 }

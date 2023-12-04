@@ -33,7 +33,7 @@ public class ChargingTaskController : ControllerBase
             int chargingTime = await chargingCalculation.CalculateChargingHours(task);
             
             // Set charging deadline
-            DateTime selectedDate = new DateTime(2023, 12, 1, 8, 0, 0);
+            DateTime selectedDate = new DateTime(2023, 12, 5, 8, 0, 0);
             // Create a TimeSpan for the offset (+01:00)
             TimeSpan offset = new TimeSpan(1, 0, 0);
             // Create a DateTimeOffset with the specified date, time, and offset

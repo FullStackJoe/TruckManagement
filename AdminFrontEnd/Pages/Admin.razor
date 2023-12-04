@@ -19,6 +19,11 @@
         <h2>Tilføj Oplader</h2>
         <p>Skriv opladerens Ampere</p>
         <input class="input-field" type="number" @bind="ampere" min="1" placeholder="Ampere">
+        <p>Turn On Webhook</p>
+        <input type="text" @bind="TurnOnUri"/>
+        
+        <p>Turn Off Webhook</p>
+        <input type="text" @bind="TurnOffUri"/>
         <button class="btn" @onclick="AddCharger">Tilføj</button>
         @if (showLabel)
         {
@@ -37,6 +42,8 @@
     int ampere;
     int id;
     bool showLabel = false;
+    public string TurnOffUri;
+    public string TurnOnUri;
     
     private async Task AddCharger()
     {
@@ -49,13 +56,14 @@
         {
             ChargerId = 0,
             ChargerAmpere = ampere,
+            TurnOffUri = TurnOffUri,
+            TurnOnUri = TurnOnUri,
         };
 
         try
         {
             WallCharger chargerAdded = await chargerService.CreateAsync(newCharger);
             id = chargerAdded.ChargerId;
-            Console.WriteLine(chargerAdded.ChargerId);
             showLabel = true; 
         }
         catch (Exception e)

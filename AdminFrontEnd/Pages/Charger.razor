@@ -1,8 +1,54 @@
 @page "/Charger/{id:int}"
-<h3>Charger</h3>
+@using WebApplication1.Shared
+@using HttpClients.ClientInterface
+@inject IChargingTaskService chargerTaskService
+
+<p>Charger ID: @Id</p>
+
+<p>Batteri %</p>
+<input type="number" min="0" max="100" @bind="BatteryPercentage"/>
+
+<p>Truck type</p>
+<select @bind="SelectedTruckType">
+    <option value="1">TRUCK 1</option>
+    <option value="2">TRUCK 2</option>
+    <option value="3">TRUCK 2</option>
+</select>
+
+<button @onclick="onConfirm">Bekræft</button>
+
+<label>@successMessage</label>
 
 @code {
     [Parameter]
-    public int id { get; set; }
+    public int Id { get; set; }
+
+    public int BatteryPercentage;
+    public int SelectedTruckType;
+    public string successMessage;
+
+    public void onConfirm()
+    {
+        Console.WriteLine("button working");
+        ChargingTask newChargingTask = new ChargingTask
+        {
+            ChargerId = Id,
+            BatteryPercentage = BatteryPercentage,
+            TruckType = SelectedTruckType,
+        };
+
+        try
+        {
+            chargerTaskService.CreateAsync(newChargingTask);
+            successMessage = "Truck successfully set for charging";
+        }
+        catch(Exception e)
+        {
+            Console.WriteLine(e);
+            successMessage = e.Message;
+        }
+        
+        
+    }
 
 }

@@ -34,14 +34,14 @@ public class ChargingCalculation
     
     private async Task<int> GetBatterySizeAsync(int truckId)
     {
-        TruckTypes truckTypes = await _context.Truck.SingleOrDefaultAsync(truck => truck.TruckTypeId == truckId);
+        TruckTypes truckTypes = await _context.TruckType.SingleOrDefaultAsync(truck => truck.TruckTypeId == truckId);
         int result = truckTypes.BatterySizeAh;
         return result;
     }
     
     private async Task<int> GetChargerAmpereAsync(int chargerId)
     {
-        WallCharger wallCharger = await _context.Charger.SingleOrDefaultAsync(charger => charger.ChargerId == chargerId);
+        WallCharger wallCharger = await _context.WallCharger.SingleOrDefaultAsync(charger => charger.ChargerId == chargerId);
         int result = wallCharger.ChargerAmpere;
         return result;
     }
