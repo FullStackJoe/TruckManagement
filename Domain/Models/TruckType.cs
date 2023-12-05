@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace WebApplication1.Shared;
 
-public class TruckTypes
+public class TruckType
 {
     [Key]
     public int TruckTypeId { get; set; }

@@ -11,11 +11,6 @@ public class ChargingCalculation
     {
         this._context = context;
     }
-    
-    public List<ChargingDBSchedule> CreateChargingDbSchedules(ChargingTask chargingTask)
-    {
-        return null;
-    }
 
     // Teoretisk opladningstid - Tager ikke højde for langsom ladning efter 80%
     public async Task<int> CalculateChargingHours(ChargingTask chargingTask)
@@ -34,8 +29,8 @@ public class ChargingCalculation
     
     private async Task<int> GetBatterySizeAsync(int truckId)
     {
-        TruckTypes truckTypes = await _context.TruckType.SingleOrDefaultAsync(truck => truck.TruckTypeId == truckId);
-        int result = truckTypes.BatterySizeAh;
+        TruckType truckType = await _context.TruckType.SingleOrDefaultAsync(truck => truck.TruckTypeId == truckId);
+        int result = truckType.BatterySizeAh;
         return result;
     }
     

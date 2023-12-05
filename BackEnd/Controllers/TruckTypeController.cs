@@ -1,27 +1,25 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using WebApplication1.Shared;
-
 namespace WebApplication1.Controllers;
 
 [ApiController]
 [Route("[controller]")]
-
-public class ChargerController : ControllerBase
+public class TruckTypeController : ControllerBase
 {
     private readonly DatabaseContext _context;
 
-    public ChargerController(DatabaseContext context)
+    public TruckTypeController(DatabaseContext context)
     {
         _context = context;
     }
     
     [HttpPost]
-    public async Task<ActionResult<WallCharger>> CreateCharger([FromBody] WallCharger wallCharger)
+    public async Task<ActionResult<TruckType>> CreateTruckType([FromBody] TruckType truckType)
     {
         try
         {
-            EntityEntry<WallCharger> added = await _context.WallCharger.AddAsync(wallCharger);
+            EntityEntry<TruckType> added = await _context.TruckType.AddAsync(truckType);
             await _context.SaveChangesAsync();
             return added.Entity;
         }

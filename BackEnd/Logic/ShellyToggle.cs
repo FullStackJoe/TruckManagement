@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Scaffolding.Metadata;
 using WebApplication1.Shared.EnergyPrices;
 
 namespace WebApplication1.Shared;
@@ -17,75 +18,97 @@ public class ShellyToggle
     
     public async void StartSystem()
     {
-        Console.WriteLine("WORKS");
-
+        Console.WriteLine("System start button clicked");
+        
+        // Inistitiancierer CancellationTokenSource
         cancellationTokenSource = new CancellationTokenSource();
+        
+        // Kører while loop som ny "thread"
         _ = Task.Run(async () => await RunScheduledTasks(cancellationTokenSource.Token));
     }
     
     private async Task RunScheduledTasks(CancellationToken cancellationToken)
     {
+        // Get list of charger id's
+        List<WallCharger> chargers = await dao.GetWallChargers();
+        foreach (var charger in chargers)
+        {
+            charger.SetHttpClient(httpClient);
+        }
+        
+        // Main loop der kører så længe systemer er aktivt
         while (!cancellationToken.IsCancellationRequested)
         {
-            // await Task.Delay(1000 * 60 , cancellationToken); // Delay 1 minute
-            await Task.Delay(600, cancellationToken); // Delay 0,8 second
+            bool loopInterupted = false;
+            // Delay for at reducere belastningen af systemet
+            await Task.Delay(400, cancellationToken); // Delay 0,6 second
             
+            // For debugging purposes
             var currentTime = DateTimeOffset.Now;
-            int faketime = currentTime.Minute - 33;
-            
+            int faketime = currentTime.Minute + 11;
 
-            // if (currentTime.Minute == 1)
-            if (currentTime.Second == 1)
+            // Hvis klokken er 1 minut over træder programmet ind i dette loop (Sker dermed en gang i timen)
+            if (currentTime.Second == 1 || loopInterupted == true)
             {
-                // Get list of charger id's
-                WallCharger kage1 = new WallCharger(httpClient)
-                {
-                    ChargerId = 1,
-                    ChargerAmpere = 40,
-                    TurnOnUri = "https://hooks.nabu.casa/gAAAAABlZGbPN3FYr7t3-SEEkEJBfBL-FehdjcOT74tGfRaJp7cWNTPmNg_0YXWfMHSoWX8-CdCafslWUIe9RgYnHoaN4MiHLse3yStC1oqO2HERo2kGcAzwrlXwyevoFP0zbHQsRAqYpi_TDClJ4uKT9Ffum7Rnu46HTH-Ob_09pNlyPELYgFo=",
-                    TurnOffUri = "https://hooks.nabu.casa/gAAAAABlZHKmhSx7jVn8MNfZ25YYHwdaIeDjICmUh7uq6zMT7HZlnCd7oCku2FHzfvKfDCkVLWXCXYkCffy-qidz1gH2C4aOJeXtseYe5Q_GJ_C5wT0CXyoDvUBjIXI1ZALJK4UJLm3fLsw_b3vLud70uBBeiMFwY_x32iK6zj0wfHbUOrLCob4=",
-                };
-                WallCharger kage2 = new WallCharger(httpClient)
-                {
-                    ChargerId = 2,
-                    ChargerAmpere = 40,
-                    TurnOnUri = "https://hooks.nabu.casa/gAAAAABlbby0DqovMB7kL-xtiRt6ZLTA19k5w9MBw56k2-O5EPrHsuzOKSWFNvETKjg_HmJP2iq7zDE0Go3vgoETGACMehnPiAqRZmtPC8cx_rOhbyA34LiK_8ty4pAzYFgBI9WmRzCe6eVAdVEQikylRkeV9hAhkEk4FcaSjOcneN6P4FT5gA4=",
-                    TurnOffUri = "https://hooks.nabu.casa/gAAAAABlbb0E-8uClPrYA9ePrO8Us8rKPRxHQPtjHpKrrV07dv11y3SufsyXQdhflRl0M89y4SgkNkxejfJ_0nUTQYoIE3TpF6nURkbMfq0PM-9p-2-Iul6hix1YKIv-PZD7jILpSYVgz2FFUSCav__x4owO09gjyfjm8Rz6e2mEyifuFdiPhdQ=",
-                };
-                List<WallCharger> chargers = new List<WallCharger> { kage1, kage2 };
-                
                 foreach (WallCharger charger in chargers)
                 {
+                    // Chargingschedule for den givne oplader hentes
                     List<ChargingDBSchedule> cheapestHours = await dao.GetChargingDbSchedule(charger.ChargerId);
                     
-                    Console.WriteLine("Next Task: " + cheapestHours[0].TimeStart.Hour);
+                    // Debugging purposes
                     Console.WriteLine("Faketime: " + faketime);
-                    if (faketime == cheapestHours[0].TimeStart.Hour && (charger.ChargerState is OffState))
+                    
+                    // Hvis der er opgaver for den givne opladaer
+                    if (cheapestHours.Any())
                     {
-                        charger.TurnOn();
-                        dao.DeleteFirstChargingDbScheduleLine(charger.ChargerId);
-                        Console.WriteLine("Charger turned on");
-                    } else if (faketime == cheapestHours[0].TimeStart.Hour && (charger.ChargerState is OnState))
-                    {
-                        dao.DeleteFirstChargingDbScheduleLine(charger.ChargerId);
+                        Console.WriteLine("NOW IM INSIDE THE DEEPEST SHIT");
+                        // Debugging purposes
+                        Console.WriteLine("Next Task: " + cheapestHours[0].TimeStart.Hour);
+                        
+                        // Scenarier hvor opladeren skal tænde
+                        if (faketime == cheapestHours[0].TimeStart.Hour && (charger.ChargerState is OffState))
+                        {
+                            charger.TurnOn();
+                            dao.DeleteFirstChargingDbScheduleLine(charger.ChargerId);
+                        }
+                        // Scnearier hvor opladeren skal forblive tændt
+                        else if (faketime == cheapestHours[0].TimeStart.Hour && (charger.ChargerState is OnState))
+                        {
+                            dao.DeleteFirstChargingDbScheduleLine(charger.ChargerId);
+                        }
+                        // Scnearier hvor opladeren skal slukke
+                        else if (faketime != cheapestHours[0].TimeStart.Hour && (charger.ChargerState is OnState))
+                        {
+                            charger.TurnOff();
+                        }
                     }
-                    else if (faketime != cheapestHours[0].TimeStart.Hour && (charger.ChargerState is OnState))
+                    // Hvis der ingen Chargingschedule for den givne oplader, slukkes.
+                    else if (charger.ChargerState is OnState)
                     {
                         charger.TurnOff();
-                        Console.WriteLine("Charger turned off");
                     }
-                    await Task.Delay(3000, cancellationToken);
                 }
+                // Vent 1 minut for at sikre loopet ikke køres før om en time
+                await Task.Delay(3000, cancellationToken);
             }
-                
         }
+        Console.WriteLine("Program loop stopped");
     }
     
-    public void StopSystem()
+    public async void StopSystem()
     {
+        // Annulerer while loopet
         cancellationTokenSource?.Cancel();
-        // gO get all TurnOnUris
-        // TurnOnCharger();
+        
+        // Henter alle ladere
+        List<WallCharger> chargers = await dao.GetWallChargers();
+        
+        // Tænder alle ladere i chargers
+        foreach (var charger in chargers)
+        {
+            charger.SetHttpClient(httpClient);
+            charger.TurnOn();
+        }
     }
 
 }

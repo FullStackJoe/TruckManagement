@@ -7,9 +7,6 @@ public class OffState : IWallChargerState
     
     public void TurnOn(WallCharger charger) {
         charger.ChargerState = new OnState();
-        
-        
-        
     }
 
     public void TurnOff(WallCharger charger)

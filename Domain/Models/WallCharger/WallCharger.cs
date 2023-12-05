@@ -1,6 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics;
+using System.Text.Json.Serialization;
 using WebApplication1.Shared.ModelInterfaces;
 
 namespace WebApplication1.Shared;
@@ -19,22 +20,26 @@ public class WallCharger
     [Required]
     public string TurnOnUri { get; set; }
     
+    [JsonIgnore]
     [NotMapped] // This attribute ensures the field is not included in the database
     public IWallChargerState ChargerState { get; set; } = new OffState();
     
-    private readonly HttpClient httpClient;
+    private HttpClient httpClient;
     
     public WallCharger()
     {
     }
-    public WallCharger(HttpClient? httpClient)
+    public WallCharger(HttpClient httpClient)
     {
         this.httpClient = httpClient;
+    }
+    public void SetHttpClient(HttpClient httpClient)
+    {
+        this.httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
     }
 
     public void TurnOn()
     {
-        Console.WriteLine("IM FUCKING IN HERE MAN");
         if (ChargerState is OffState)
         {
             ApiCallOn();

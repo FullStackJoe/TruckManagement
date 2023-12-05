@@ -1,6 +1,7 @@
 @page "/Charger/{id:int}"
 @using WebApplication1.Shared
 @using HttpClients.ClientInterface
+@inject DAO dao
 @inject IChargingTaskService chargerTaskService
 
 <p>Charger ID: @Id</p>
@@ -10,9 +11,10 @@
 
 <p>Truck type</p>
 <select @bind="SelectedTruckType">
-    <option value="1">TRUCK 1</option>
-    <option value="2">TRUCK 2</option>
-    <option value="3">TRUCK 2</option>
+    @foreach (var truckType in TruckTypes)
+    {
+        <option value="@truckType.TruckTypeId">@truckType.Model</option>
+    }
 </select>
 
 <button @onclick="onConfirm">Bekræft</button>
@@ -26,7 +28,14 @@
     public int BatteryPercentage;
     public int SelectedTruckType;
     public string successMessage;
-
+    public List<TruckType> TruckTypes;
+    
+    protected override async Task OnInitializedAsync()
+    {
+        TruckTypes = await dao.GetTruckTypes();
+    }
+    
+    
     public void onConfirm()
     {
         Console.WriteLine("button working");

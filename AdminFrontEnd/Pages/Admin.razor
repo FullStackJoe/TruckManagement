@@ -3,6 +3,7 @@
 @using HttpClients.ClientInterface
 @inject ShellyToggle shellyToggle
 @inject IChargerService chargerService
+@inject ITruckTypeService truckTypeService
 
 
 <PageTitle>System Administration</PageTitle>
@@ -25,25 +26,43 @@
         <p>Turn Off Webhook</p>
         <input type="text" @bind="TurnOffUri"/>
         <button class="btn" @onclick="AddCharger">Tilføj</button>
-        @if (showLabel)
+        @if (showChargerLabel)
         {
-            <label class="success-message">Oplader med ID: @id oprettet</label>
+            <label class="success-message">Oplader med ID: @chargerId oprettet</label>
         }
     </section>
 
-    <section class="truck-type-form">
+    <section class="charger-form">
         <h2>Tilføj TruckType</h2>
-        <!-- Additional content goes here -->
+        <p>Skriv modelnavn</p>
+        <input class="input-field" type="text" @bind="modelNameSelected" min="1" placeholder="Modelnavn">
+        <p>Batteristørrelse</p>
+        <input type="number" @bind="batterySizeSelected"/>
+        
+        <button class="btn" @onclick="AddTruckType">Tilføj</button>
+        @if (showTruckLabel)
+        {
+            <label class="success-message">Model: @modelName med batteri: @batteysize AH er successfult oprettet </label>
+        }
     </section>
 </main>
 
 @code {
 
+    // Input values
     int ampere;
-    int id;
-    bool showLabel = false;
+    string modelNameSelected;
+    int batterySizeSelected;
     public string TurnOffUri;
     public string TurnOnUri;
+    
+    // Label values
+    bool showChargerLabel = false;
+    bool showTruckLabel = false;
+    int chargerId;
+    string modelName;
+    int batteysize;
+
     
     private async Task AddCharger()
     {
@@ -63,8 +82,33 @@
         try
         {
             WallCharger chargerAdded = await chargerService.CreateAsync(newCharger);
-            id = chargerAdded.ChargerId;
-            showLabel = true; 
+            chargerId = chargerAdded.ChargerId;
+            showChargerLabel = true; 
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+        }
+        
+    }
+    private async Task AddTruckType()
+    {
+        if (modelNameSelected == "" || batterySizeSelected == 0)
+        {
+            return;
+        }
+        TruckType newTruckType = new TruckType()
+        {
+            Model = modelNameSelected,
+            BatterySizeAh = batterySizeSelected,
+        };
+
+        try
+        {
+            TruckType truckAdded = await truckTypeService.CreateAsync(newTruckType);
+            batteysize = truckAdded.BatterySizeAh;
+            modelName = truckAdded.Model;
+            showTruckLabel = true; 
         }
         catch (Exception e)
         {
