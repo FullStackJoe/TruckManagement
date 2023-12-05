@@ -6,7 +6,6 @@ namespace WebApplication1.Shared;
 public class ShellyToggle
 {
     private readonly HttpClient httpClient;
-    private bool isCharging = false;
     private CancellationTokenSource cancellationTokenSource;
     private DAO dao;
 
@@ -32,21 +31,21 @@ public class ShellyToggle
             await Task.Delay(600, cancellationToken); // Delay 0,8 second
             
             var currentTime = DateTimeOffset.Now;
-            int faketime = currentTime.Minute - 40;
+            int faketime = currentTime.Minute - 33;
             
 
             // if (currentTime.Minute == 1)
             if (currentTime.Second == 1)
             {
                 // Get list of charger id's
-                WallCharger kage1 = new WallCharger()
+                WallCharger kage1 = new WallCharger(httpClient)
                 {
                     ChargerId = 1,
                     ChargerAmpere = 40,
                     TurnOnUri = "https://hooks.nabu.casa/gAAAAABlZGbPN3FYr7t3-SEEkEJBfBL-FehdjcOT74tGfRaJp7cWNTPmNg_0YXWfMHSoWX8-CdCafslWUIe9RgYnHoaN4MiHLse3yStC1oqO2HERo2kGcAzwrlXwyevoFP0zbHQsRAqYpi_TDClJ4uKT9Ffum7Rnu46HTH-Ob_09pNlyPELYgFo=",
                     TurnOffUri = "https://hooks.nabu.casa/gAAAAABlZHKmhSx7jVn8MNfZ25YYHwdaIeDjICmUh7uq6zMT7HZlnCd7oCku2FHzfvKfDCkVLWXCXYkCffy-qidz1gH2C4aOJeXtseYe5Q_GJ_C5wT0CXyoDvUBjIXI1ZALJK4UJLm3fLsw_b3vLud70uBBeiMFwY_x32iK6zj0wfHbUOrLCob4=",
                 };
-                WallCharger kage2 = new WallCharger()
+                WallCharger kage2 = new WallCharger(httpClient)
                 {
                     ChargerId = 2,
                     ChargerAmpere = 40,
@@ -57,31 +56,24 @@ public class ShellyToggle
                 
                 foreach (WallCharger charger in chargers)
                 {
-                    Console.WriteLine(charger.ChargerId);
-                }
-                    
-                
-                foreach (WallCharger charger in chargers)
-                {
                     List<ChargingDBSchedule> cheapestHours = await dao.GetChargingDbSchedule(charger.ChargerId);
                     
                     Console.WriteLine("Next Task: " + cheapestHours[0].TimeStart.Hour);
                     Console.WriteLine("Faketime: " + faketime);
-                    if (faketime == cheapestHours[0].TimeStart.Hour && !isCharging)
+                    if (faketime == cheapestHours[0].TimeStart.Hour && (charger.ChargerState is OffState))
                     {
-                        await TurnOnCharger(charger.TurnOnUri);
+                        charger.TurnOn();
                         dao.DeleteFirstChargingDbScheduleLine(charger.ChargerId);
                         Console.WriteLine("Charger turned on");
-                    } else if (faketime == cheapestHours[0].TimeStart.Hour && isCharging)
+                    } else if (faketime == cheapestHours[0].TimeStart.Hour && (charger.ChargerState is OnState))
                     {
                         dao.DeleteFirstChargingDbScheduleLine(charger.ChargerId);
                     }
-                    else if (faketime != cheapestHours[0].TimeStart.Hour && isCharging)
+                    else if (faketime != cheapestHours[0].TimeStart.Hour && (charger.ChargerState is OnState))
                     {
-                        await TurnOffCharger(charger.TurnOffUri);
+                        charger.TurnOff();
                         Console.WriteLine("Charger turned off");
                     }
-                    Console.WriteLine(isCharging);
                     await Task.Delay(3000, cancellationToken);
                 }
             }
@@ -95,31 +87,5 @@ public class ShellyToggle
         // gO get all TurnOnUris
         // TurnOnCharger();
     }
-    private async Task TurnOnCharger(string uri)
-    {
-        isCharging = true;
-        try
-        {
-            var response = await httpClient.PostAsync(uri, new StringContent(""));
-            // response.EnsureSuccessStatusCode();
-        }
-        catch (Exception ex)
-        {
-            // Console.WriteLine(ex);
-        }
-    }
-    
-    private async Task TurnOffCharger(string uri)
-    {
-        isCharging = false;
-        try
-        {
-            var response = await httpClient.PostAsync(uri, new StringContent(""));
-            // response.EnsureSuccessStatusCode();
-        }
-        catch (Exception ex)
-        {
-            // Console.WriteLine(ex);
-        }
-    }
+
 }

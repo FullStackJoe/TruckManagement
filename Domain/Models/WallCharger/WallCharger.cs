@@ -20,40 +20,42 @@ public class WallCharger
     public string TurnOnUri { get; set; }
     
     [NotMapped] // This attribute ensures the field is not included in the database
-    public WallChargerState ChargerState { get; set; } = new OffState();
+    public IWallChargerState ChargerState { get; set; } = new OffState();
     
     private readonly HttpClient httpClient;
     
-    public WallCharger(HttpClient httpClient)
+    public WallCharger()
+    {
+    }
+    public WallCharger(HttpClient? httpClient)
     {
         this.httpClient = httpClient;
     }
 
     public void TurnOn()
     {
-        ChargerState.TurnOn(this, TurnOnUri);
-        
+        Console.WriteLine("IM FUCKING IN HERE MAN");
         if (ChargerState is OffState)
-        { 
-            // TURN ON
+        {
+            ApiCallOn();
         }
+        ChargerState.TurnOn(this);
     }
     
     public void TurnOff()
     {
-        ChargerState.TurnOff(this, TurnOffUri);
-        
         if (ChargerState is OnState)
-        { 
-            // TURN OFF
+        {
+            ApiCallOff();
         }
+        ChargerState.TurnOff(this);
     }
-    private async Task TurnOnCharger(string uri)
+    private async Task ApiCallOn()
     {
         try
         {
-            var response = await httpClient.PostAsync(uri, new StringContent(""));
-            // response.EnsureSuccessStatusCode();
+            var response = await httpClient.PostAsync(TurnOnUri, new StringContent(""));
+            response.EnsureSuccessStatusCode();
         }
         catch (Exception e)
         {
@@ -61,12 +63,12 @@ public class WallCharger
         }
     }
     
-    private async Task TurnOffCharger(string uri)
+    private async Task ApiCallOff()
     {
         try
         {
-            var response = await httpClient.PostAsync(uri, new StringContent(""));
-            // response.EnsureSuccessStatusCode();
+            var response = await httpClient.PostAsync(TurnOffUri, new StringContent(""));
+            response.EnsureSuccessStatusCode();
         }
         catch (Exception e)
         {
