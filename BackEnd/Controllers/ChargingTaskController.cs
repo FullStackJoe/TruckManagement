@@ -12,13 +12,15 @@ public class ChargingTaskController : ControllerBase
 {
     private readonly ChargingCalculation chargingCalculation;
     private readonly EnergyPrices energyPrices;
-    private readonly DatabaseContext _context;
+    private readonly DatabaseContext context;
+    private readonly DAO dao;
 
-    public ChargingTaskController(ChargingCalculation chargingCalculation, EnergyPrices energyPrices, DatabaseContext context)
+    public ChargingTaskController(ChargingCalculation chargingCalculation, EnergyPrices energyPrices, DatabaseContext context, DAO dao)
     {
         this.chargingCalculation = chargingCalculation;
         this.energyPrices = energyPrices;
-        _context = context;
+        this.context = context;
+        this.dao = dao;
     }
 
     [HttpPost]
@@ -32,8 +34,24 @@ public class ChargingTaskController : ControllerBase
             // Calculate charging time
             int chargingTime = await chargingCalculation.CalculateChargingHours(task);
             
+            // Retrieve the deadline hour from the database
+            int deadlineHour = await dao.GetDailyDeadlineHour();
+            
             // Set charging deadline
-            DateTime selectedDate = new DateTime(2023, 12, 6, 8, 0, 0);
+            DateTime now = DateTime.Now;
+            DateTime selectedDate;
+
+            if (now.Hour < deadlineHour)
+            {
+                // If the current time is between midnight and 8 AM, set selectedDate to 8 AM of the same day
+                selectedDate = new DateTime(now.Year, now.Month, now.Day, deadlineHour, 0, 0);
+            }
+            else
+            {
+                // If the current time is between 8 AM and midnight, set selectedDate to 8 AM of the next day
+                DateTime tomorrow = now.AddDays(1);
+                selectedDate = new DateTime(tomorrow.Year, tomorrow.Month, tomorrow.Day, deadlineHour, 0, 0);
+            }
             // Create a TimeSpan for the offset (+01:00)
             TimeSpan offset = new TimeSpan(1, 0, 0);
             // Create a DateTimeOffset with the specified date, time, and offset
@@ -61,8 +79,8 @@ public class ChargingTaskController : ControllerBase
             
 
             // Add chargingDBSchedules to DB
-            await _context.ChargingDBSchedule.AddRangeAsync(schedule);
-            await _context.SaveChangesAsync();
+            await context.ChargingDBSchedule.AddRangeAsync(schedule);
+            await context.SaveChangesAsync();
             
            // return Created($"/posts/{created.Id}", created);
            return null;

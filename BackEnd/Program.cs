@@ -15,7 +15,18 @@ builder.Services.AddScoped<ChargingCalculation>();
 builder.Services.AddScoped<EnergyPrices>();
 builder.Services.AddDbContext<DatabaseContext>();
 builder.Services.AddHttpClient<EnergyPrices>();
-builder.Services.AddHttpClient(); // This line registers IHttpClientFactory
+builder.Services.AddHttpClient("BypassSSL", client =>
+    {
+        // Configure client, if needed
+    })
+    .ConfigurePrimaryHttpMessageHandler(() =>
+    {
+        return new HttpClientHandler
+        {
+            ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => true
+        };
+    });
+// builder.Services.AddHttpClient(); // This line registers IHttpClientFactory
 builder.Services.AddScoped<ShellyToggle>();
 builder.Services.AddScoped<DAO>();
 

@@ -45,6 +45,7 @@ public class WallCharger
             ApiCallOn();
         }
         ChargerState.TurnOn(this);
+        Console.WriteLine(ChargerState.GetType());
     }
     
     public void TurnOff()

@@ -4,5 +4,5 @@ namespace HttpClients.ClientInterface;
 
 public interface IChargingTaskService
 {
-    void CreateAsync(ChargingTask newCharger);
+    Task CreateAsync(ChargingTask newCharger);
 }

@@ -8,21 +8,22 @@ public class ChargingTaskHttpClient : IChargingTaskService
 {
     private readonly HttpClient httpClient;
 
-    public ChargingTaskHttpClient(HttpClient httpClient)
+    public ChargingTaskHttpClient(IHttpClientFactory clientFactory)
     {
-        this.httpClient = httpClient;
+        this.httpClient = clientFactory.CreateClient("BypassSSL");
     }
     
-    public async void CreateAsync(ChargingTask newChargingTask)
+    public async Task CreateAsync(ChargingTask newChargingTask)
     {
-        
-        // NOT PRODUCTION READY
-        
-        var handler = new HttpClientHandler();
-        handler.ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => { return true; };
-        var httpClient = new HttpClient(handler);
-            
-        HttpResponseMessage response = await httpClient.PostAsJsonAsync("https://localhost:7224/ChargingTask", newChargingTask);
-        
+        try
+        {
+            HttpResponseMessage response =
+                await httpClient.PostAsJsonAsync("https://localhost:7224/ChargingTask", newChargingTask);
+            response.EnsureSuccessStatusCode();
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+        }
     }
 }

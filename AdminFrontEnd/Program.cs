@@ -11,7 +11,18 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
 builder.Services.AddSingleton<WeatherForecastService>();
-builder.Services.AddScoped(SP => new HttpClient()); // Registers IHttpClientFactory
+builder.Services.AddHttpClient("BypassSSL", client =>
+    {
+        // Configure client, if needed
+    })
+    .ConfigurePrimaryHttpMessageHandler(() =>
+    {
+        return new HttpClientHandler
+        {
+            ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => true
+        };
+    });
+// builder.Services.AddScoped(SP => new HttpClient()); // Registers IHttpClientFactory
 builder.Services.AddScoped<DAO>();
 builder.Services.AddScoped<ShellyToggle>();
 builder.Services.AddScoped<IChargerService, ChargerHttpClient>();

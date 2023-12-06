@@ -4,7 +4,8 @@
 @inject ShellyToggle shellyToggle
 @inject IChargerService chargerService
 @inject ITruckTypeService truckTypeService
-
+@inject IServiceScopeFactory scopeFactory
+@inject DAO dao
 
 <PageTitle>System Administration</PageTitle>
 
@@ -21,10 +22,10 @@
         <p>Skriv opladerens Ampere</p>
         <input class="input-field" type="number" @bind="ampere" min="1" placeholder="Ampere">
         <p>Turn On Webhook</p>
-        <input type="text" @bind="TurnOnUri"/>
+        <input type="text" @bind="turnOnUri"/>
         
         <p>Turn Off Webhook</p>
-        <input type="text" @bind="TurnOffUri"/>
+        <input type="text" @bind="turnOffUri"/>
         <button class="btn" @onclick="AddCharger">Tilføj</button>
         @if (showChargerLabel)
         {
@@ -45,6 +46,20 @@
             <label class="success-message">Model: @modelName med batteri: @batteysize AH er successfult oprettet </label>
         }
     </section>
+        <section class="charger-form">
+            <h2>Instillinger</h2>
+            <p>Smart Charging</p>
+            <input class="input-field" type="checkbox" @bind="smartcharging">
+            
+            <p>Daglig deadline for opladning (Time 0-23)</p>
+            <input type="number" min="0" max="23" @bind="deadline"/>
+            
+            <button class="btn" @onclick="UpdateSettings">Opdater</button>
+            @if (false)
+            {
+                <label class="success-message">Model: @modelName med batteri: @batteysize AH er successfult oprettet </label>
+            }
+        </section>
 </main>
 
 @code {
@@ -53,8 +68,9 @@
     int ampere;
     string modelNameSelected;
     int batterySizeSelected;
-    public string TurnOffUri;
-    public string TurnOnUri;
+    public string turnOffUri;
+    public string turnOnUri;
+    public int deadline;
     
     // Label values
     bool showChargerLabel = false;
@@ -62,7 +78,44 @@
     int chargerId;
     string modelName;
     int batteysize;
+    Settings? settings;
+    bool smartcharging;
 
+    
+    protected override async Task OnInitializedAsync()
+    {
+        settings = await dao.GetSettings();
+        if (settings != null)
+        {
+            smartcharging = settings.SmartCharging;
+            deadline = settings.DailyDeadline;
+        }
+    }
+        
+    private async Task UpdateSettings()
+    {
+        Settings newSettings = new Settings()
+        {
+            DailyDeadline = deadline,
+            SmartCharging = smartcharging,
+        };
+
+        try
+        {
+            using (var scope = scopeFactory.CreateScope())
+            {
+                var dao = scope.ServiceProvider.GetRequiredService<DAO>();
+                List<WallCharger> chargers = await dao.GetWallChargers();
+                await dao.UpdateSettings(newSettings);
+            }
+            
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+        }
+        
+    }
     
     private async Task AddCharger()
     {
@@ -75,8 +128,8 @@
         {
             ChargerId = 0,
             ChargerAmpere = ampere,
-            TurnOffUri = TurnOffUri,
-            TurnOnUri = TurnOnUri,
+            TurnOffUri = turnOffUri,
+            TurnOnUri = turnOnUri,
         };
 
         try
