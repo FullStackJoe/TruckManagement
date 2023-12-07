@@ -7,67 +7,90 @@
 @inject IServiceScopeFactory scopeFactory
 @inject DAO dao
 
-<PageTitle>System Administration</PageTitle>
+<PageTitle>System Configuration</PageTitle>
 
-<main class="admin-container">
-    <h1 class="page-header">Welcome to the System Administration Page</h1>
-
-    <section class="control-panel">
-        <button class="btn" @onclick="Start">START</button>
-        <button class="btn" @onclick="Stop">STOP</button>
-    </section>
-
-    <section class="charger-form">
-        <h2>Tilføj Oplader</h2>
-        <p>Skriv opladerens Ampere</p>
-        <input class="input-field" type="number" @bind="ampere" min="1" placeholder="Ampere">
-        <p>Turn On Webhook</p>
-        <input type="text" @bind="turnOnUri"/>
+<main>
+<section class="start-stop-section text-center mb-4">
+    @if (!status)
+    {
+        <button class="btn btn-success mr-2" @onclick="Start">START</button>
+        <p>Systemet er slukket </p>
+    }
+    @if (status)
+    {
         
-        <p>Turn Off Webhook</p>
-        <input type="text" @bind="turnOffUri"/>
-        <button class="btn" @onclick="AddCharger">Tilføj</button>
-        @if (showChargerLabel)
-        {
-            <label class="success-message">Oplader med ID: @chargerId oprettet</label>
-        }
-    </section>
+        <button class="btn btn-danger" @onclick="Stop">STOP</button>
+        <p>Systemet kører </p>
+    }
+</section>
+    
+<section class="settings mt-4 mb-4 text-center">
+<div class="form-group rounded border p-3">
+    <div class="row mb-3">
+        <div class="col text-left">
+            <h3 class="mb-0">Smart Charging er @smartChargingLabel</h3>
+        </div>
+        <div class="col-auto ml-auto">
+            <button class="btn btn-primary" @onclick="ToggleSmartCharging">TURN @smartChargingButtonLabel</button>
+        </div>
+    </div>
 
-    <section class="charger-form">
-        <h2>Tilføj TruckType</h2>
-        <p>Skriv modelnavn</p>
-        <input class="input-field" type="text" @bind="modelNameSelected" min="1" placeholder="Modelnavn">
-        <p>Batteristørrelse</p>
-        <input type="number" @bind="batterySizeSelected"/>
+    <div class="row mb-3 align-items-center">
+        <div class="col text-left">
+            <h3 class="mb-0">Deadline for opladning (Time 0-23)</h3>
+        </div>
+        <div class="col-auto ml-auto">
+            <input type="number" min="0" max="23" @bind="deadline" class="form-control mr-2" style="width: 80px;">
+        </div>
+        <div class="col-auto">
+            <button class="btn btn-primary" @onclick="UpdateSettings">Opdater Deadline</button>
+        </div>
+    </div>
+</div>
+    
+</section>
+
+    <div class="row mt-4">
+        <section class="charger-form col-md-6">
+            <h2>Tilføj Oplader</h2>
+            <p>Skriv opladerens Ampere</p>
+            <input type="number" @bind="ampere" min="1" placeholder="Ampere" class="form-control mb-3">
+            <p>Turn On Webhook</p>
+            <input type="text" @bind="turnOnUri" placeholder="Url"  class="form-control mb-3"/>
         
-        <button class="btn" @onclick="AddTruckType">Tilføj</button>
-        @if (showTruckLabel)
-        {
-            <label class="success-message">Model: @modelName med batteri: @batteysize AH er successfult oprettet </label>
-        }
-    </section>
-        <section class="charger-form">
-            <h2>Instillinger</h2>
-            <p>Smart Charging</p>
-            <input class="input-field" type="checkbox" @bind="smartcharging">
-            
-            <p>Daglig deadline for opladning (Time 0-23)</p>
-            <input type="number" min="0" max="23" @bind="deadline"/>
-            
-            <button class="btn" @onclick="UpdateSettings">Opdater</button>
-            @if (false)
+            <p>Turn Off Webhook</p>
+            <input type="text" @bind="turnOffUri" placeholder="Url"  class="form-control mb-3"/>
+            <button class="btn btn-primary mt-2" @onclick="AddCharger">Tilføj Oplader</button>
+            @if (showChargerLabel)
             {
-                <label class="success-message">Model: @modelName med batteri: @batteysize AH er successfult oprettet </label>
+                <label class="ms-3">Oplader med ID: @chargerId oprettet</label>
             }
         </section>
+
+        <section class="truck-form col-md-6">
+            <h2>Tilføj Truck Type</h2>
+            <p>Skriv modelnavn</p>
+            <input type="text" @bind="modelNameSelected" min="1" placeholder="Modelnavn" class="form-control mb-3">
+            <p>Batteristørrelse</p>
+            <input type="number" @bind="batterySizeSelected" placeholder="Batteristørrelse i AH"  class="form-control mb-3"/>
+        
+            <button class="btn btn-primary mt-2" @onclick="AddTruckType">Tilføj Truck Type</button>
+            @if (showTruckLabel)
+            {
+                <label class="ms-3">Model: @modelName med batteri: @batteysize AH er successfult oprettet</label>
+            }
+        </section>
+        
+        
+    </div>
 </main>
 
 @code {
 
     // Input values
-    int ampere;
+    string ampere;
     string modelNameSelected;
-    int batterySizeSelected;
+    string batterySizeSelected;
     public string turnOffUri;
     public string turnOnUri;
     public int deadline;
@@ -79,19 +102,40 @@
     string modelName;
     int batteysize;
     Settings? settings;
+    SystemStatus? systemStatus;
     bool smartcharging;
+    string smartChargingLabel;
+    string smartChargingButtonLabel;
+    bool status;
 
     
     protected override async Task OnInitializedAsync()
     {
         settings = await dao.GetSettings();
+        systemStatus = await dao.GetSystemStatus();
+        
         if (settings != null)
         {
             smartcharging = settings.SmartCharging;
             deadline = settings.DailyDeadline;
         }
+        if (systemStatus != null)
+        {
+            status = systemStatus.Status;
+        }
+        Console.WriteLine(status);
+        smartChargingLabel = smartcharging ? "ON" : "OFF";
+        smartChargingButtonLabel = smartcharging ? "OFF" : "ON";
     }
-        
+    
+    private async void ToggleSmartCharging()
+    {
+        smartcharging = !smartcharging;
+        smartChargingLabel = smartcharging ? "ON" : "OFF";
+        smartChargingButtonLabel = smartcharging ? "OFF" : "ON";
+        await UpdateSettings();
+    }
+
     private async Task UpdateSettings()
     {
         Settings newSettings = new Settings()
@@ -100,6 +144,7 @@
             SmartCharging = smartcharging,
         };
 
+        
         try
         {
             using (var scope = scopeFactory.CreateScope())
@@ -119,7 +164,7 @@
     
     private async Task AddCharger()
     {
-        if (ampere == null || ampere == 0)
+        if (ampere == null || ampere == "0")
         {
         // Handle the case where ampere is null.
             return;
@@ -127,7 +172,7 @@
         WallCharger newCharger = new WallCharger()
         {
             ChargerId = 0,
-            ChargerAmpere = ampere,
+            ChargerAmpere = int.Parse(ampere),
             TurnOffUri = turnOffUri,
             TurnOnUri = turnOnUri,
         };
@@ -142,18 +187,20 @@
         {
             Console.WriteLine(e);
         }
-        
+        ampere = "";
+        turnOffUri = "";
+        turnOnUri = "";
     }
     private async Task AddTruckType()
     {
-        if (modelNameSelected == "" || batterySizeSelected == 0)
+        if (modelNameSelected == "" || batterySizeSelected == "0")
         {
             return;
         }
         TruckType newTruckType = new TruckType()
         {
             Model = modelNameSelected,
-            BatterySizeAh = batterySizeSelected,
+            BatterySizeAh = int.Parse(batterySizeSelected),
         };
 
         try
@@ -167,19 +214,34 @@
         {
             Console.WriteLine(e);
         }
-        
+        modelNameSelected = "";
+        batterySizeSelected = "";
     }
 
     
     
-    private void Start()
+    private async void Start()
     {
         shellyToggle.StartSystem();
+        using (var scope = scopeFactory.CreateScope())
+        {
+            var dao = scope.ServiceProvider.GetRequiredService<DAO>();
+            await dao.UpdateSystemRunning(true);
+        }
+        status = true;
+        StateHasChanged();
     }
 
-    private void Stop()
+    private async void Stop()
     {
         shellyToggle.StopSystem();
+        using (var scope = scopeFactory.CreateScope())
+        {
+            var dao = scope.ServiceProvider.GetRequiredService<DAO>();
+            await dao.UpdateSystemRunning(false);
+        }
+        status = false;
+        StateHasChanged();
     }
     
     

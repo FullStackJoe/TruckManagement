@@ -4,22 +4,33 @@
 @inject DAO dao
 @inject IChargingTaskService chargerTaskService
 
-<p>Charger ID: @Id</p>
+<div class="container mt-3">
+    <h2 class="mb-3">Oplader ID: @Id</h2>
 
-<p>Batteri %</p>
-<input type="number" min="0" max="100" @bind="BatteryPercentage"/>
+    <div class="mb-3">
+        <label for="batteryPercentage" class="form-label">Batteri %</label>
+        <input type="number" id="batteryPercentage" class="form-control" min="0" max="100" @bind="BatteryPercentage"/>
+    </div>
 
-<p>Truck type</p>
-<select @bind="SelectedTruckType">
-    @foreach (var truckType in TruckTypes)
+    <div class="mb-3">
+        <label for="truckType" class="form-label">Truck type</label>
+        <select id="truckType" class="form-select" @bind="SelectedTruckType">
+            @foreach (var truckType in TruckTypes)
+            {
+                <option value="@truckType.TruckTypeId">@truckType.Model</option>
+            }
+        </select>
+    </div>
+
+    <button class="btn btn-primary" @onclick="onConfirm">Bekræft</button>
+
+    @if (!string.IsNullOrWhiteSpace(successMessage))
     {
-        <option value="@truckType.TruckTypeId">@truckType.Model</option>
+        <div class="alert alert-success mt-3" role="alert">
+            @successMessage
+        </div>
     }
-</select>
-
-<button @onclick="onConfirm">Bekræft</button>
-
-<label>@successMessage</label>
+</div>
 
 @code {
     [Parameter]

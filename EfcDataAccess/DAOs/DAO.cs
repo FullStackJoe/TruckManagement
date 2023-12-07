@@ -68,6 +68,44 @@ public class DAO
         }
     }
     
+    public async Task UpdateSystemRunning(bool systemStatus)
+    {
+        try
+        {
+            var firstLine = await context.SystemStatus.FirstOrDefaultAsync();
+            SystemStatus newStatus = new SystemStatus()
+            {
+                Status = systemStatus
+            };
+            if (firstLine != null)
+            {
+                context.SystemStatus.Add(newStatus);
+                context.SystemStatus.Remove(firstLine);
+                
+            }
+            else
+            {
+                // Handling the case when there is no row in the Settings table
+                context.SystemStatus.Add(newStatus);
+                Console.WriteLine("Im inside a create function");
+            }
+
+            // Save the changes to the database
+            await context.SaveChangesAsync();
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+        }
+    }
+    
+    public async Task<SystemStatus> GetSystemStatus()
+    {
+        // Retrieve the first row from the "Settings" table
+        var status = await context.SystemStatus.FirstOrDefaultAsync();
+        return status;
+    }
+    
     public async Task<Settings> GetSettings()
     {
         // Retrieve the first row from the "Settings" table

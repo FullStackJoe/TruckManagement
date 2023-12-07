@@ -12,6 +12,8 @@ public class DatabaseContext : DbContext
     
     public DbSet<Settings> Settings { get; set; }
     
+    public DbSet<SystemStatus> SystemStatus { get; set; }
+    
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
         optionsBuilder.UseSqlite("Data Source = ../EfcDataAccess/Database.db");
