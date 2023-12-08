@@ -13,19 +13,37 @@ public class ChargingCalculation
     }
 
     // Teoretisk opladningstid - Tager ikke højde for langsom ladning efter 80%
-    public async Task<int> CalculateChargingHours(ChargingTask chargingTask)
+    public async Task<int> GetChargingHours(ChargingTask chargingTask)
     {
         int percentage = chargingTask.BatteryPercentage;
         
         int batterySize = await GetBatterySizeAsync(chargingTask.TruckType);
 
         int chargerAmpere = await GetChargerAmpereAsync(chargingTask.ChargerId);
-        
-        double tempResult = ((double)batterySize / chargerAmpere) / 100 * (100 - percentage);
-        int chargingHours = (int)Math.Ceiling(tempResult);
+
+        int chargingHours = CalculateChargingHours(percentage, batterySize, chargerAmpere);
         
         return chargingHours;
     }
+    
+    public static int CalculateChargingHours(int percentage, int batterySize, int chargerAmpere)
+    {
+        if (percentage < 0)
+        {
+            throw new ArgumentOutOfRangeException("percentage");
+        } else if (percentage > 100)
+        {
+            throw new ArgumentOutOfRangeException("percentage");
+        }
+        else
+        {
+            double tempResult = ((double)batterySize / chargerAmpere) / 100 * (100 - percentage);
+            int chargingHours = (int)Math.Ceiling(tempResult);
+            return chargingHours;
+        }
+    }
+    
+    
     
     private async Task<int> GetBatterySizeAsync(int truckId)
     {

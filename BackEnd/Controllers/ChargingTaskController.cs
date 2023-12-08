@@ -32,7 +32,7 @@ public class ChargingTaskController : ControllerBase
         try
         {
             // Calculate charging time
-            int chargingTime = await chargingCalculation.CalculateChargingHours(task);
+            int chargingTime = await chargingCalculation.GetChargingHours(task);
             
             // Retrieve the deadline hour from the database
             int deadlineHour = await dao.GetDailyDeadlineHour();

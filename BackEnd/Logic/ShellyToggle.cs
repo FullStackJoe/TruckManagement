@@ -63,7 +63,6 @@ public class ShellyToggle
                             
                             // Chargingschedule for den givne oplader hentes
                             List<ChargingDBSchedule> cheapestHours = await dao.GetChargingDbSchedule(charger.ChargerId);
-                            Console.WriteLine("HELLO");
                             
                             // Hvis der er opgaver for den givne opladaer
                             Console.Write(cheapestHours.Any());
@@ -100,7 +99,7 @@ public class ShellyToggle
                         // Vent 1 minut for at sikre loopet ikke køres før om en time
                         await Task.Delay(3000, cancellationToken);
                     }
-                }
+            }
         }
         Console.WriteLine("Program loop stopped");
     }
