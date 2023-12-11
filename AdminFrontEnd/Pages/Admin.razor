@@ -61,10 +61,19 @@
             <p>Turn Off Webhook</p>
             <input type="text" @bind="turnOffUri" placeholder="Url"  class="form-control mb-3"/>
             <button class="btn btn-primary mt-2" @onclick="AddCharger">Tilføj Oplader</button>
-            @if (showChargerLabel)
-            {
-                <label class="ms-3">Oplader med ID: @chargerId oprettet</label>
-            }
+@if (showChargerLabel)
+{
+    <label class="ms-3">Oplader med ID: @chargerId oprettet</label>
+    <br />
+    <br /> 
+    <div class="text-center"> <!-- Center the following content -->
+        <label class="ms-3">Ophæng nedenståedne QR kode på opladeren</label>
+        <br />
+        <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=@($"https://localhost:7021/charger/{chargerId}")" alt="QR Code" />
+    </div>
+}
+
+
         </section>
 
         <section class="truck-form col-md-6">
