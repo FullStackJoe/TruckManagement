@@ -15,109 +15,107 @@ public class ShellyToggle
         this.httpClient = clientFactory.CreateClient("BypassSSL");
         this.scopeFactory = scopeFactory;
     }
-    
+
     public async void StartSystem()
     {
-        Console.WriteLine("System start button clicked");
-        
         // Inistitiancierer CancellationTokenSource
         cancellationTokenSource = new CancellationTokenSource();
-        
+
         // Kører while loop som ny "thread"
         _ = Task.Run(async () => await RunScheduledTasks(cancellationTokenSource.Token));
     }
-    
+
     private async Task RunScheduledTasks(CancellationToken cancellationToken)
     {
         using (var scope = scopeFactory.CreateScope())
         {
             var dao = scope.ServiceProvider.GetRequiredService<DAO>();
-            
+
             // Empty the ChargingDBSchedule
             await dao.DeleteChargingDBSchedule();
             List<WallCharger> chargers = await dao.GetWallChargers();
             // Main loop der kører så længe systemer er aktivt
-            
+
             while (!cancellationToken.IsCancellationRequested)
             {
-                bool loopInterupted = false;
                 // Delay for at reducere belastningen af systemet
                 await Task.Delay(400, cancellationToken); // Delay 0,6 second
-                
+
                 // For debugging purposes
                 var currentTime = DateTimeOffset.Now;
-                int faketime = currentTime.Minute - 35 ;
-                
+                int faketime = currentTime.Minute - 35;
+
                 // create a new scope for each operation that involves database access. To make sure a new DBCotext is created 
+                foreach (WallCharger charger in chargers)
+                {
+                    charger.SetHttpClient(httpClient);
+                }
+
+                // Hvis klokken er 1 minut over træder programmet ind i dette loop (Sker dermed en gang i timen)
+                if (currentTime.Second == 1)
+                {
+                    // Debugging purposes
+                    Console.WriteLine("Faketime: " + faketime);
                     foreach (WallCharger charger in chargers)
                     {
-                        charger.SetHttpClient(httpClient);
-                    }
-                    // Hvis klokken er 1 minut over træder programmet ind i dette loop (Sker dermed en gang i timen)
-                    if (currentTime.Second == 1 || loopInterupted == true)
-                    {
-                        // Debugging purposes
-                        Console.WriteLine("Faketime: " + faketime);
-                        foreach (WallCharger charger in chargers)
+                        // Chargingschedule for den givne oplader hentes
+                        List<ChargingDBSchedule> cheapestHours = await dao.GetChargingDbSchedule(charger.ChargerId);
+
+                        // Hvis der er opgaver for den givne opladaer
+                        Console.Write(cheapestHours.Any());
+                        if (cheapestHours.Any())
                         {
-                            
-                            // Chargingschedule for den givne oplader hentes
-                            List<ChargingDBSchedule> cheapestHours = await dao.GetChargingDbSchedule(charger.ChargerId);
-                            
-                            // Hvis der er opgaver for den givne opladaer
-                            Console.Write(cheapestHours.Any());
-                            if (cheapestHours.Any())
+                            // Debugging purposes
+                            Console.WriteLine("ID: " + charger.ChargerId + "Next Task: " +
+                                              cheapestHours[0].TimeStart.Hour);
+
+                            // Scenarier hvor opladeren skal tænde
+                            if (faketime == cheapestHours[0].TimeStart.Hour && (charger.ChargerState is OffState))
                             {
-                                // Debugging purposes
-                                Console.WriteLine("ID: " + charger.ChargerId + "Next Task: " + cheapestHours[0].TimeStart.Hour);
-                                
-                                // Scenarier hvor opladeren skal tænde
-                                if (faketime == cheapestHours[0].TimeStart.Hour && (charger.ChargerState is OffState))
-                                {
-                                    charger.TurnOn();
-                                    dao.DeleteFirstChargingDbScheduleLine(charger.ChargerId);
-                                }
-                                // Scnearier hvor opladeren skal forblive tændt
-                                else if (faketime == cheapestHours[0].TimeStart.Hour && (charger.ChargerState is OnState))
-                                {
-                                    dao.DeleteFirstChargingDbScheduleLine(charger.ChargerId);
-                                }
-                                // Scnearier hvor opladeren skal slukke
-                                else if (faketime != cheapestHours[0].TimeStart.Hour && (charger.ChargerState is OnState))
-                                {
-                                    charger.TurnOff();
-                                }
+                                charger.TurnOn();
+                                dao.DeleteFirstChargingDbScheduleLine(charger.ChargerId);
                             }
-                            // Hvis der ingen Chargingschedule for den givne oplader, slukkes.
-                            else if (charger.ChargerState is OnState)
+                            // Scnearier hvor opladeren skal forblive tændt
+                            else if (faketime == cheapestHours[0].TimeStart.Hour && (charger.ChargerState is OnState))
                             {
-                                Console.WriteLine("im inside some tunoff shit");
+                                dao.DeleteFirstChargingDbScheduleLine(charger.ChargerId);
+                            }
+                            // Scnearier hvor opladeren skal slukke
+                            else if (faketime != cheapestHours[0].TimeStart.Hour && (charger.ChargerState is OnState))
+                            {
                                 charger.TurnOff();
                             }
-                            Console.WriteLine(charger.ChargerState.GetType());
                         }
-                        // Vent 1 minut for at sikre loopet ikke køres før om en time
-                        await Task.Delay(3000, cancellationToken);
+                        // Hvis der ingen Chargingschedule for den givne oplader, slukkes.
+                        else if (charger.ChargerState is OnState)
+                        {
+                            charger.TurnOff();
+                        }
+                        
                     }
+
+                    // Vent 1 minut for at sikre loopet ikke køres før om en time
+                    await Task.Delay(3000, cancellationToken);
+                }
             }
         }
+
         Console.WriteLine("Program loop stopped");
     }
-    
+
     public async void StopSystem()
     {
         // Annulerer while loopet
         cancellationTokenSource?.Cancel();
-        
 
         // create a new scope for each operation that involves database access. To make sure a new DBCotext is created 
         using (var scope = scopeFactory.CreateScope())
         {
             var dao = scope.ServiceProvider.GetRequiredService<DAO>();
-            
+
             // Henter alle ladere
             List<WallCharger> chargers = await dao.GetWallChargers();
-            
+
             // Tænder alle ladere i chargers
             foreach (var charger in chargers)
             {
@@ -126,5 +124,4 @@ public class ShellyToggle
             }
         }
     }
-
 }

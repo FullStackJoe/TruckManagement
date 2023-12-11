@@ -34,28 +34,9 @@ public class ChargingTaskController : ControllerBase
             // Calculate charging time
             int chargingTime = await chargingCalculation.GetChargingHours(task);
             
-            // Retrieve the deadline hour from the database
+            // Retrieve the deadline hour from the database and convert to DateTimeOffset
             int deadlineHour = await dao.GetDailyDeadlineHour();
-            
-            // Set charging deadline
-            DateTime now = DateTime.Now;
-            DateTime selectedDate;
-
-            if (now.Hour < deadlineHour)
-            {
-                // If the current time is between midnight and 8 AM, set selectedDate to 8 AM of the same day
-                selectedDate = new DateTime(now.Year, now.Month, now.Day, deadlineHour, 0, 0);
-            }
-            else
-            {
-                // If the current time is between 8 AM and midnight, set selectedDate to 8 AM of the next day
-                DateTime tomorrow = now.AddDays(1);
-                selectedDate = new DateTime(tomorrow.Year, tomorrow.Month, tomorrow.Day, deadlineHour, 0, 0);
-            }
-            // Create a TimeSpan for the offset (+01:00)
-            TimeSpan offset = new TimeSpan(1, 0, 0);
-            // Create a DateTimeOffset with the specified date, time, and offset
-            DateTimeOffset deadline = new DateTimeOffset(selectedDate, offset);
+            DateTimeOffset deadline = chargingCalculation.IntDeadlineTotimeStamp(deadlineHour);
             
             // Fetch EnergyPrices
             List<EnergyData> fetchedEnergyPrices = await energyPrices.getPriceDataAsync();
@@ -82,7 +63,6 @@ public class ChargingTaskController : ControllerBase
             await context.ChargingDBSchedule.AddRangeAsync(schedule);
             await context.SaveChangesAsync();
             
-           // return Created($"/posts/{created.Id}", created);
            return null;
         }
         catch (Exception e)
@@ -91,5 +71,6 @@ public class ChargingTaskController : ControllerBase
             return StatusCode(500, e.Message);
         }
     }
+    
     
 }
