@@ -43,7 +43,6 @@ public class ShellyToggle
 
                 // For debugging purposes
                 var currentTime = DateTimeOffset.Now;
-                int faketime = currentTime.Minute - 35;
 
                 // create a new scope for each operation that involves database access. To make sure a new DBCotext is created 
                 foreach (WallCharger charger in chargers)
@@ -52,10 +51,8 @@ public class ShellyToggle
                 }
 
                 // Hvis klokken er 1 minut over træder programmet ind i dette loop (Sker dermed en gang i timen)
-                if (currentTime.Second == 1)
+                if (currentTime.Minute == 1)
                 {
-                    // Debugging purposes
-                    Console.WriteLine("Faketime: " + faketime);
                     foreach (WallCharger charger in chargers)
                     {
                         // Chargingschedule for den givne oplader hentes
@@ -70,18 +67,18 @@ public class ShellyToggle
                                               cheapestHours[0].TimeStart.Hour);
 
                             // Scenarier hvor opladeren skal tænde
-                            if (faketime == cheapestHours[0].TimeStart.Hour && (charger.ChargerState is OffState))
+                            if (currentTime.Hour == cheapestHours[0].TimeStart.Hour && (charger.ChargerState is OffState))
                             {
                                 charger.TurnOn();
                                 dao.DeleteFirstChargingDbScheduleLine(charger.ChargerId);
                             }
                             // Scnearier hvor opladeren skal forblive tændt
-                            else if (faketime == cheapestHours[0].TimeStart.Hour && (charger.ChargerState is OnState))
+                            else if (currentTime.Hour == cheapestHours[0].TimeStart.Hour && (charger.ChargerState is OnState))
                             {
                                 dao.DeleteFirstChargingDbScheduleLine(charger.ChargerId);
                             }
                             // Scnearier hvor opladeren skal slukke
-                            else if (faketime != cheapestHours[0].TimeStart.Hour && (charger.ChargerState is OnState))
+                            else if (currentTime.Hour != cheapestHours[0].TimeStart.Hour && (charger.ChargerState is OnState))
                             {
                                 charger.TurnOff();
                             }
