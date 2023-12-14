@@ -6,17 +6,18 @@ public class DAO
 {
     private readonly DatabaseContext context;
 
+    // Constructor to initialize the DatabaseContext
     public DAO(DatabaseContext context)
     {
         this.context = context;
     }
     
-    
+    // Retrieves a list of ChargingDBSchedule for a specific Charger ID
     public async Task<List<ChargingDBSchedule>> GetChargingDbSchedule(int id)
     {
         try
         {
-            // Use LINQ to filter the data before calling ToListAsync()
+            // use LINQ Filtering the ChargingDBSchedule by ChargerId and converting to List asynchronously
             List<ChargingDBSchedule> cheapestHours = await context.ChargingDBSchedule
                 .Where(c => c.ChargerId == id)
                 .ToListAsync();
@@ -29,6 +30,8 @@ public class DAO
         }
         return null;
     }
+    
+    // Deletes the first ChargingDBSchedule entry for a given charger ID
     public async void DeleteFirstChargingDbScheduleLine(int chargerId)
     {
         var firstLine = await context.ChargingDBSchedule.FirstOrDefaultAsync(charger => charger.ChargerId == chargerId);
@@ -40,6 +43,8 @@ public class DAO
         }
 
     }
+    
+    // Updates the Settings in the database
     public async Task UpdateSettings(Settings newSettings)
     {
         try
@@ -54,7 +59,7 @@ public class DAO
             }
             else
             {
-                // Handling the case when there is no row in the Settings table
+                 // Adding new settings if  there is no row in the Settings table
                 context.Settings.Add(newSettings);
                 Console.WriteLine("Im inside a create function");
             }
@@ -68,6 +73,7 @@ public class DAO
         }
     }
     
+    // Updates the SystemRunning status
     public async Task UpdateSystemRunning(bool systemStatus)
     {
         try
@@ -99,6 +105,7 @@ public class DAO
         }
     }
     
+    // Retrieves the current SystemStatus
     public async Task<SystemStatus> GetSystemStatus()
     {
         // Retrieve the first row from the "Settings" table
@@ -106,6 +113,7 @@ public class DAO
         return status;
     }
     
+    // Retrieves the current Settings
     public async Task<Settings> GetSettings()
     {
         // Retrieve the first row from the "Settings" table
@@ -113,12 +121,14 @@ public class DAO
         return settings;
     }
     
+    // Retrieves the Daily Deadline Hour from Settings
     public async Task<int> GetDailyDeadlineHour()
     {
         var settings = await context.Settings.FirstOrDefaultAsync();
         return settings?.DailyDeadline ?? 8; // Return a default value if settings is null
     }
     
+    // Retrieves all WallChargers
     public async Task<List<WallCharger>> GetWallChargers()
     {
         List<WallCharger> wallChargers = await context.WallCharger.ToListAsync();
@@ -126,6 +136,7 @@ public class DAO
         
     }
     
+    // Deletes all ChargingDBSchedule entries
     public async Task DeleteChargingDBSchedule()
     {
         // Assuming _context is your database context
@@ -134,6 +145,7 @@ public class DAO
         await context.SaveChangesAsync();
     }
 
+    // Retrieves all TruckTypes
     public async Task<List<TruckType>> GetTruckTypes()
     {
         List<TruckType> truckTypes = await context.TruckType.ToListAsync();

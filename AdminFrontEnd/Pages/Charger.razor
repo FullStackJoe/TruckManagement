@@ -33,23 +33,31 @@
 </div>
 
 @code {
+    // Parameter attribute allows this property to be set by the parent component
     [Parameter]
     public int Id { get; set; }
 
+    // Fields to store battery percentage, selected truck type, and success message
     public int BatteryPercentage;
     public int SelectedTruckType;
     public string successMessage;
+    // List to store different truck types
     public List<TruckType> TruckTypes;
     
+    // Method called when the component is initialized
     protected override async Task OnInitializedAsync()
     {
+    // Fetch and store truck types from the DAO service
         TruckTypes = await dao.GetTruckTypes();
     }
     
-    
+    // Method triggered by a UI event, such as a button click
     public void onConfirm()
     {
+    // Log to console for debugging purposes
         Console.WriteLine("button working");
+
+    // Create a new charging task with the selected parameters
         ChargingTask newChargingTask = new ChargingTask
         {
             ChargerId = Id,
@@ -59,16 +67,17 @@
 
         try
         {
+    // Attempt to create a new charger task asynchronously
             chargerTaskService.CreateAsync(newChargingTask);
+    // Update the success message on successful creation
             successMessage = "Truck successfully set for charging";
         }
         catch(Exception e)
         {
+    // Log any exceptions to the console and display the error message
             Console.WriteLine(e);
             successMessage = e.Message;
         }
-        
-        
     }
 
 }

@@ -95,8 +95,7 @@
 </main>
 
 @code {
-
-    // Input values
+    // Define fields for user input
     string ampere;
     string modelNameSelected;
     string batterySizeSelected;
@@ -104,7 +103,7 @@
     public string turnOnUri;
     public int deadline;
     
-    // Label values
+    // Define fields for UI display control
     bool showChargerLabel = false;
     bool showTruckLabel = false;
     int chargerId;
@@ -117,12 +116,13 @@
     string smartChargingButtonLabel;
     bool status;
 
-    
+    // Initialization method, executed when the component is first rendered
     protected override async Task OnInitializedAsync()
     {
         settings = await dao.GetSettings();
         systemStatus = await dao.GetSystemStatus();
         
+        // Set smart charging and deadline values based on settings
         if (settings != null)
         {
             smartcharging = settings.SmartCharging;
@@ -132,11 +132,13 @@
         {
             status = systemStatus.Status;
         }
-        Console.WriteLine(status);
+
+        // Update labels for UI based on current state
         smartChargingLabel = smartcharging ? "ON" : "OFF";
         smartChargingButtonLabel = smartcharging ? "OFF" : "ON";
     }
     
+    // Toggle the smart charging feature and update settings
     private async void ToggleSmartCharging()
     {
         smartcharging = !smartcharging;
@@ -145,6 +147,7 @@
         await UpdateSettings();
     }
 
+    // Update system settings based on user input
     private async Task UpdateSettings()
     {
         Settings newSettings = new Settings()
@@ -153,29 +156,27 @@
             SmartCharging = smartcharging,
         };
 
-        
+        // Try to update settings in database and handle any exceptions
         try
         {
             using (var scope = scopeFactory.CreateScope())
             {
                 var dao = scope.ServiceProvider.GetRequiredService<DAO>();
-                List<WallCharger> chargers = await dao.GetWallChargers();
                 await dao.UpdateSettings(newSettings);
             }
-            
         }
         catch (Exception e)
         {
             Console.WriteLine(e);
         }
-        
     }
     
+    // Add a new charger to the system
     private async Task AddCharger()
     {
         if (ampere == null || ampere == "0")
         {
-        // Handle the case where ampere is null.
+            // Handle invalid ampere input
             return;
         }
         WallCharger newCharger = new WallCharger()
@@ -186,6 +187,7 @@
             TurnOnUri = turnOnUri,
         };
 
+        // Attempt to create a new charger and update UI accordingly
         try
         {
             WallCharger chargerAdded = await chargerService.CreateAsync(newCharger);
@@ -196,14 +198,19 @@
         {
             Console.WriteLine(e);
         }
+
+        // Reset input fields after adding charger
         ampere = "";
         turnOffUri = "";
         turnOnUri = "";
     }
+
+    // Add a new truck type to the system
     private async Task AddTruckType()
     {
         if (modelNameSelected == "" || batterySizeSelected == "0")
         {
+            // Handle invalid truck type input
             return;
         }
         TruckType newTruckType = new TruckType()
@@ -212,6 +219,7 @@
             BatterySizeAh = int.Parse(batterySizeSelected),
         };
 
+        // Attempt to create a new truck type and update UI accordingly
         try
         {
             TruckType truckAdded = await truckTypeService.CreateAsync(newTruckType);
@@ -223,12 +231,13 @@
         {
             Console.WriteLine(e);
         }
+
+        // Reset input fields after adding truck type
         modelNameSelected = "";
         batterySizeSelected = "";
     }
 
-    
-    
+    // Method to start the system
     private async void Start()
     {
         shellyToggle.StartSystem();
@@ -241,6 +250,7 @@
         StateHasChanged();
     }
 
+    // Method to stop the system
     private async void Stop()
     {
         shellyToggle.StopSystem();
@@ -252,6 +262,5 @@
         status = false;
         StateHasChanged();
     }
-    
-    
+
 }

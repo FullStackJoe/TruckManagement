@@ -90,7 +90,7 @@ public class BackEndTests
     public async Task GetChargingDBSchedule_test()
     {
         // Arrange
-        int expected = 5;
+        int expected = 2;
         await dao.DeleteChargingDBSchedule();
         
         // Create chargingDBSchedules

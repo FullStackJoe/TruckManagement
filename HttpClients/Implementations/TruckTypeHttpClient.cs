@@ -17,7 +17,7 @@ public class TruckTypeHttpClient : ITruckTypeService
     {
         try
         {
-            // NOT PRODUCTION READY
+            // NOT PRODUCTION READY: Bypass SSL certificate validation for development purposes
             var handler = new HttpClientHandler();
             handler.ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => { return true; };
             var httpClient = new HttpClient(handler);

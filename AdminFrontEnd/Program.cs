@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
-using AdminFrontEnd.Data;
 using HttpClients.ClientInterface;
 using HttpClients.Implementations;
 using WebApplication1.Shared;
@@ -10,7 +9,6 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
-builder.Services.AddSingleton<WeatherForecastService>();
 builder.Services.AddHttpClient("BypassSSL", client =>
     {
         // Configure client, if needed
